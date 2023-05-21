@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { Comment } from './comments/comments.service';
 
 export interface News {
-  id: number;
+  id?: number;
   title: string;
   description: string;
   author: string;
-  countView: number;
+  countView?: number;
+  comments?: Comment[];
+  cover?: string;
 }
 
-function getRandomInt(min: number, max: number): number {
+export function getRandomInt(min = 1, max = 9999): number {
   min = Math.ceil(min);
   max = Math.ceil(max);
   return Math.floor(Math.random() * (max - min)) + min; // Min includes and max not.
@@ -23,6 +26,8 @@ export class NewsService {
       description: 'Very first news! Keep in touch!',
       author: 'Admin',
       countView: 12,
+      cover:
+        'https://media.npr.org/assets/img/2021/08/11/gettyimages-1279899488_wide-f3860ceb0ef19643c335cb34df3fa1de166e2761-s1100-c50.jpg',
     },
   ];
 
