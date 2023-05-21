@@ -4,10 +4,10 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
-import { Comment, CommentsService } from './comments.service';
+import { Comment, CommentsService, CommentEdit } from './comments.service';
 
 @Controller('comments')
 export class CommentsController {
@@ -20,20 +20,20 @@ export class CommentsController {
   }
 
   @Get('api/:idNews')
-  get(@Param('idNews') idNews: string) {
+  get(@Param('idNews') idNews: string): Comment[] {
     const idNewsInt = parseInt(idNews);
     return this.commentsService.find(idNewsInt);
   }
 
-  @Patch('api/:idNews/:idComment')
+  @Put('api/:idNews/:idComment')
   edit(
     @Param('idNews') idNews: string,
     @Param('idComment') idComment: string,
-    @Body('message') message: string,
+    @Body() comment: CommentEdit,
   ) {
     const idNewsInt = parseInt(idNews);
     const idCommentInt = parseInt(idComment);
-    return this.commentsService.edit(idNewsInt, idCommentInt, message);
+    return this.commentsService.edit(idNewsInt, idCommentInt, comment);
   }
 
   @Delete('api/:idNews/:idComment')

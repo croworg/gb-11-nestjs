@@ -38,7 +38,6 @@ export class NewsController {
     const idInt = parseInt(id);
     const news = this.newsService.find(idInt);
     const comments = this.commentsService.find(idInt);
-
     const content = renderNews(news, comments);
     return renderTemplate(content, {
       title: news.title,
