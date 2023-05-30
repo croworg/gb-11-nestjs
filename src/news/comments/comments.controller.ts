@@ -4,17 +4,43 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Comment, CommentsService, CommentEdit } from './comments.service';
+import { Comment, CommentsService } from './comments.service';
+import { UpdateCommentDto } from './dtos/update-comment.dto';
+import { CreateCommentDto } from './dtos/create-comment.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { HelperFileLoader } from '../../utils/HelperFileLoader';
+
+const PATH_COMMENTS = '/comments-static/';
+HelperFileLoader.path = PATH_COMMENTS;
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post('api/:idNews')
-  create(@Param('idNews') idNews: string, @Body() comment: Comment) {
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: HelperFileLoader.destinationPath,
+        filename: HelperFileLoader.customFileName,
+      }),
+    }),
+  )
+  create(
+    @Param('idNews') idNews: string,
+    @Body() comment: CreateCommentDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
+    if (avatar?.filename) {
+      comment.avatar = PATH_COMMENTS + avatar.filename;
+    }
     const idNewsInt = parseInt(idNews);
     return this.commentsService.create(idNewsInt, comment);
   }
@@ -27,13 +53,11 @@ export class CommentsController {
 
   @Put('api/:idNews/:idComment')
   edit(
-    @Param('idNews') idNews: string,
-    @Param('idComment') idComment: string,
-    @Body() comment: CommentEdit,
+    @Param('idNews', ParseIntPipe) idNews: number,
+    @Param('idComment', ParseIntPipe) idComment: number,
+    @Body() comment: UpdateCommentDto,
   ) {
-    const idNewsInt = parseInt(idNews);
-    const idCommentInt = parseInt(idComment);
-    return this.commentsService.edit(idNewsInt, idCommentInt, comment);
+    return this.commentsService.edit(idNews, idComment, comment);
   }
 
   @Delete('api/:idNews/:idComment')
