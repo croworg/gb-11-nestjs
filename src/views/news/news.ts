@@ -36,7 +36,10 @@ export function renderCommentsBlock(comments: Comment[]): string {
   for (const comment of comments) {
     commentsListHtml += `
       <div class="d-flex flex-row comment-row m-t-0 mb-4">
-        <div class="p-2"><img src="https://i.imgur.com/Ur43esv.jpg" alt="user" width="50" class="rounded-circle"></div>
+        <div class="px-3"><img class="rounded-circle shadow-1-strong mb-4" src="${
+          (comment?.avatar && comment.avatar) ||
+          'https://i.imgur.com/Ur43esv.jpg'
+        }" style="width: 100px; height: 100px; object-fit: cover" alt="Avatar" /></div>
         <div class="comment-text w-100">
           <h6 class="font-medium">${comment.author}</h6>
           <span class="mb-2 d-block">${comment.message}</span>

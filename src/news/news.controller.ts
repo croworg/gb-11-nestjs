@@ -8,6 +8,9 @@ import {
   Post,
   Delete,
   HttpStatus,
+  HttpException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { News, NewsService } from './news.service';
@@ -15,6 +18,14 @@ import { CommentsService } from './comments/comments.service';
 import { renderNewsAll } from '../views/news/news-all';
 import { renderTemplate } from '../views/template';
 import { renderNews } from '../views/news/news';
+import { CreateNewsDto } from './dtos/create-news.dto';
+import { UpdateNewsDto } from './dtos/update-news.dto';
+import { diskStorage } from 'multer';
+import { HelperFileLoader } from '../utils/HelperFileLoader';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+const PATH_NEWS = '/news-static/';
+HelperFileLoader.path = PATH_NEWS;
 
 @Controller('news')
 export class NewsController {
@@ -64,24 +75,39 @@ export class NewsController {
   }
 
   @Post('api')
-  create(@Body() news: News): News {
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage: diskStorage({
+        destination: HelperFileLoader.destinationPath,
+        filename: HelperFileLoader.customFileName,
+      }),
+    }),
+  )
+  create(
+    @Body() news: CreateNewsDto,
+    @UploadedFile() cover: Express.Multer.File,
+  ): News {
+    if (cover?.filename) {
+      news.cover = PATH_NEWS + cover.filename;
+    }
     return this.newsService.create(news);
   }
 
   @Post('api/:id')
   edit(
     @Param('id') id,
-    @Body() news: News,
+    @Body() news: UpdateNewsDto,
     @Res({ passthrough: true }) res: Response,
   ): string {
     const newsId = parseInt(id);
     const isEdited = this.newsService.edit(newsId, news);
-    if (isEdited) {
-      res.status(HttpStatus.OK);
-      return 'News edited successfully';
+    if (!isEdited) {
+      // res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Wrong news index', HttpStatus.BAD_REQUEST);
+      // return 'Wrong news index';
     }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR);
-    return 'Wrong news index';
+    // res.status(HttpStatus.OK);
+    return 'News edited successfully';
   }
 
   @Delete('api/:id')

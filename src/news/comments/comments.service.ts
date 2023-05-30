@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -10,7 +10,8 @@ export interface Comment {
   id?: number;
   message: string;
   author: string;
-  idNews: number;
+  avatar: string;
+  // idNews: number;
 }
 
 export type CommentEdit = Partial<Comment>;
@@ -29,7 +30,8 @@ export class CommentsService {
       id: getRandomInt(),
     });
 
-    return 'Комментарий добавлен';
+    return comment;
+    // return 'Комментарий добавлен';
   }
 
   find(idNews: number): Comment[] | null {
