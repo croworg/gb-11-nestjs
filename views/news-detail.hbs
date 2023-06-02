@@ -1,0 +1,79 @@
+{{#if news}}
+  <h1 class='card-title'>{{news.title}}</h1>
+  <h6 class='card-subtitle mb-2 text-muted'>Author: {{news.author}}</h6>
+
+  <div class='row'>
+    <div class='col-lg-3'>
+      <img
+        src='http://localhost:3000/{{news.cover}}'
+        class='card-img-top'
+        style='height: 100%; object-fit: cover;'
+        alt=''
+      />
+    </div>
+    <div class='col-lg-6'>
+      <p class='card-text'>{{news.description}}</p>
+    </div>
+  </div>
+
+  <form action="" name="form">
+    <div class='mb-3'>
+      <label for='author' class='form-label'>Author</label>
+      <input class='form-control' name='author' id='author' />
+    </div>
+    <div class='mb-3'>
+      <label for='message' class='form-label'>Message</label>
+      <textarea
+        class='form-control'
+        name='message'
+        id='message'
+        rows='3'
+      ></textarea>
+    </div>
+      <button class="btn btn-primary" onclick='sendForm()'>Leave comment</button>
+  </form>
+
+  {{#if comments}}
+    {{#each comments}}
+      <div class='d-flex flex-row comment-row m-t-0 mb-4'>
+        <div class='px-3'><img
+            class='rounded-circle shadow-1-strong mb-4'
+            src='{{this.avatar}}'
+            style='width: 100px; height: 100px; object-fit: cover'
+            alt='Avatar'
+          /></div>
+        <div class='comment-text w-100'>
+          <h6 class='font-medium'>{{this.author}}</h6>
+          <span class='mb-2 d-block'>{{this.message}}</span>
+          <div class='comment-footer'>
+            <button type='button' class='btn btn-cyan btn-sm'>Edit</button>
+            <button type='button' class='btn btn-danger btn-sm'>Delete</button>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  {{else}}
+    <h1>There are no comments yet!</h1>
+  {{/if}}
+{{/if}}
+
+<script>
+  function sendForm() {
+    var data = new FormData($('form')[0]);
+
+    const idNews = window.location.pathname.split('/').reverse()[0];
+
+    $.ajax({
+        url: '/comments/api/' + idNews,
+        data: {author: 'Dude', description: 'Some words', avatar: 'avatar'},
+        // data: data,
+        cache: false,
+        contentType: false,
+        processData: false,
+        method: 'POST',
+        success: function () {
+            window.location.reload();
+        }
+    });
+  }
+</script>

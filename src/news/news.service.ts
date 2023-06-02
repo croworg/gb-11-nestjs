@@ -26,8 +26,7 @@ export class NewsService {
       description: 'Very first news! Keep in touch!',
       author: 'Admin',
       countView: 12,
-      cover:
-        'https://media.npr.org/assets/img/2021/08/11/gettyimages-1279899488_wide-f3860ceb0ef19643c335cb34df3fa1de166e2761-s1100-c50.jpg',
+      cover: 'giphy.gif',
     },
   ];
 
