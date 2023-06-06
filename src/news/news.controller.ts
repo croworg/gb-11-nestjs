@@ -141,9 +141,7 @@ export class NewsController {
 
   @Delete('api/:id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
-    console.log('XXX', id);
     const isRemoved = await this.newsService.remove(id);
-    console.log('ZZZ', id, isRemoved);
     throw new HttpException(
       {
         status: HttpStatus.OK,
