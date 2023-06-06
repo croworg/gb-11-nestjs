@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './comments/comments.service';
+import { NewsEntity } from './dtos/news.entity';
+import { Repository } from 'typeorm';
 
 export interface News {
   id?: number;
@@ -11,64 +14,46 @@ export interface News {
   cover?: string;
 }
 
-export function getRandomInt(min = 1, max = 9999): number {
-  min = Math.ceil(min);
-  max = Math.ceil(max);
-  return Math.floor(Math.random() * (max - min)) + min; // Min includes and max not.
-}
-
 @Injectable()
 export class NewsService {
-  private readonly news: News[] = [
-    {
-      id: 1,
-      title: 'This is first news',
-      description: 'Very first news! Keep in touch!',
-      author: 'Admin',
-      countView: 12,
-      cover:
-        'https://media.npr.org/assets/img/2021/08/11/gettyimages-1279899488_wide-f3860ceb0ef19643c335cb34df3fa1de166e2761-s1100-c50.jpg',
-    },
-  ];
+  constructor(
+    @InjectRepository(NewsEntity)
+    private newsRepository: Repository<NewsEntity>,
+  ) {}
 
-  getAll(): News[] {
-    if (this.news.length === 0) {
-      return [];
+  getAll(): Promise<NewsEntity[]> {
+    return this.newsRepository.find({});
+  }
+
+  findById(id): Promise<NewsEntity> {
+    return this.newsRepository.findOneBy({ id: id });
+  }
+
+  async create(news: News): Promise<NewsEntity> {
+    const newsEntity = new NewsEntity();
+    newsEntity.title = news.title;
+    newsEntity.description = news.description;
+    newsEntity.cover = news.cover;
+    return this.newsRepository.save(news);
+  }
+
+  async edit(id: number, news: News): Promise<NewsEntity | null> {
+    const editableNews = await this.findById(id);
+    if (editableNews) {
+      const newsEntity = new NewsEntity();
+      newsEntity.title = news.title || editableNews.title;
+      newsEntity.description = news.description || editableNews.description;
+      newsEntity.cover = news.cover || editableNews.cover;
+      return this.newsRepository.save(newsEntity);
     }
-    return this.news;
+    return null;
   }
 
-  create(news: News): News {
-    const preparedNews = {
-      ...news,
-      id: getRandomInt(0, 99999),
-    };
-    this.news.push(preparedNews);
-    return preparedNews;
-  }
-
-  edit(id: number, news: News): boolean {
-    const newsIndex = this.news.findIndex((item) => item.id === id);
-    if (newsIndex !== -1) {
-      this.news[newsIndex] = {
-        ...news,
-        id: id,
-      };
-      return true;
+  async remove(id: News['id']): Promise<NewsEntity | null> {
+    const indexRemoveNews = await this.findById(id);
+    if (indexRemoveNews) {
+      return this.newsRepository.remove(indexRemoveNews);
     }
-    return false;
-  }
-
-  find(id: News['id']): News | undefined {
-    return this.news.find((news) => news.id === id);
-  }
-
-  remove(id: number): boolean {
-    const indexRemoveNews = this.news.findIndex((news) => news.id === id);
-    if (indexRemoveNews !== -1) {
-      this.news.splice(indexRemoveNews, 1);
-      return true;
-    }
-    return false;
+    return null;
   }
 }

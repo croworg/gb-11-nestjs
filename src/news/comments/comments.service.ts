@@ -4,7 +4,6 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { getRandomInt } from '../news.service';
 
 export interface Comment {
   id?: number;
@@ -27,7 +26,7 @@ export class CommentsService {
 
     this.comments[idNews].push({
       ...comment,
-      id: getRandomInt(),
+      id: 1,
     });
 
     return comment;
