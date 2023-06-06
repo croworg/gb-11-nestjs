@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './comments/comments.service';
 import { NewsEntity } from './dtos/news.entity';
 import { Repository } from 'typeorm';
+import { UsersService } from '../users/users.service';
+import { CreateNewsDto } from './dtos/create-news.dto';
+import { UsersEntity } from '../users/users.entity';
 
 export interface News {
   id?: number;
@@ -19,6 +22,7 @@ export class NewsService {
   constructor(
     @InjectRepository(NewsEntity)
     private newsRepository: Repository<NewsEntity>,
+    private usersService: UsersService,
   ) {}
 
   getAll(): Promise<NewsEntity[]> {
@@ -26,15 +30,20 @@ export class NewsService {
   }
 
   findById(id): Promise<NewsEntity> {
-    return this.newsRepository.findOneBy({ id: id });
+    return this.newsRepository.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
   }
 
-  async create(news: News): Promise<NewsEntity> {
+  async create(news: CreateNewsDto): Promise<NewsEntity> {
     const newsEntity = new NewsEntity();
     newsEntity.title = news.title;
     newsEntity.description = news.description;
     newsEntity.cover = news.cover;
-    return this.newsRepository.save(news);
+    const _user = await this.usersService.findById(parseInt(news.userId));
+    newsEntity.user = _user;
+    return this.newsRepository.save(newsEntity);
   }
 
   async edit(id: number, news: News): Promise<NewsEntity | null> {

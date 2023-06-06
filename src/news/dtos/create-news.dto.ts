@@ -10,14 +10,7 @@ export class CreateNewsDto {
   description!: string;
 
   @IsNotEmpty()
-  @IsString()
-  author!: string;
+  userId: string;
 
-  @IsOptional()
-  @IsNumber()
-  countView: number;
-
-  @IsOptional()
-  @IsString()
   cover: string;
 }
