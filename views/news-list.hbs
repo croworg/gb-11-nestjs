@@ -1,8 +1,8 @@
 {{#if news}}
-  <div class='row'>
+  <div class='row pt-4'>
     {{#each news}}
-      <div class='col-lg-6'>
-        <div class='card'>
+      <div class='col-lg-6 pb-4'>
+        <div class='card' style="cursor: pointer" onclick="window.location.href = '/news/detail/{{this.id}}'">
           <img
             src='http://localhost:3000/{{this.cover}}'
             class='card-img-top'

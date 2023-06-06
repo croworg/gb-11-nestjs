@@ -1,9 +1,11 @@
+<div class="container">
 {{#if news}}
-  <h1 class='card-title'>{{news.title}}</h1>
-  <h6 class='card-subtitle mb-2 text-muted'>Author: {{news.author}}</h6>
-
-  <div class='row'>
-    <div class='col-lg-3'>
+  <div class='row d-flex justify-content-center border-bottom mt-3 mb-3'>
+    <div class='col-lg-8 mb-4'>
+      <h1 class='card-title mb-2'>{{news.title}}</h1>
+      <h6 class='card-subtitle text-muted'>Author: {{news.author}}</h6>
+    </div>
+    <div class='col-lg-8'>
       <img
         src='http://localhost:3000/{{news.cover}}'
         class='card-img-top'
@@ -11,69 +13,102 @@
         alt=''
       />
     </div>
-    <div class='col-lg-6'>
-      <p class='card-text'>{{news.description}}</p>
+    <div class='col-lg-8 mt-2'>
+      <p class='blockquote'>{{news.description}}</p>
     </div>
   </div>
 
-  <form action="" name="form">
-    <div class='mb-3'>
-      <label for='author' class='form-label'>Author</label>
-      <input class='form-control' name='author' id='author' />
-    </div>
-    <div class='mb-3'>
-      <label for='message' class='form-label'>Message</label>
-      <textarea
-        class='form-control'
-        name='message'
-        id='message'
-        rows='3'
-      ></textarea>
-    </div>
-      <button class="btn btn-primary" onclick='sendForm()'>Leave comment</button>
-  </form>
-
-  {{#if comments}}
-    {{#each comments}}
-      <div class='d-flex flex-row comment-row m-t-0 mb-4'>
-        <div class='px-3'><img
-            class='rounded-circle shadow-1-strong mb-4'
-            src='{{this.avatar}}'
-            style='width: 100px; height: 100px; object-fit: cover'
-            alt='Avatar'
-          /></div>
-        <div class='comment-text w-100'>
-          <h6 class='font-medium'>{{this.author}}</h6>
-          <span class='mb-2 d-block'>{{this.message}}</span>
-          <div class='comment-footer'>
-            <button type='button' class='btn btn-cyan btn-sm'>Edit</button>
-            <button type='button' class='btn btn-danger btn-sm'>Delete</button>
-          </div>
+  <form action=''>
+    <div class='d-flex justify-content-center row'>
+      <div class='col-lg-8 bg-light p-2'>
+        <div class='mb-2'>
+          <label for='author' class='form-label'>Author</label>
+          <input class='form-control' name='author' id='author' />
+        </div>
+        <div class='mb-2'>
+          <label for='message' class='form-label'>Message</label>
+          <textarea
+            class='form-control ml-1 shadow-none textarea'
+            name='message'
+            id='message'
+          ></textarea>
+        </div>
+        <div class='mt-2 text-right'>
+          <button
+            class='btn btn-primary btn-sm shadow-none'
+            type='button'
+            onclick='sendForm()'
+          >Post comment</button>
         </div>
       </div>
-    {{/each}}
-  {{else}}
-    <h1>There are no comments yet!</h1>
-  {{/if}}
+    </div>
+  </form>
+
+<!--  <div class='container justify-content-center border-left border-right py-3'>-->
+    {{#if comments}}
+      {{#each comments}}
+        <div class='d-flex justify-content-center row border-bottom'>
+          <div class='col-lg-8 p-2 mt-2'>
+            <div class='d-flex justify-content-between'>
+              <div class='d-flex flex-row user-info'>
+                <img
+                  class='rounded-circle'
+                  src='{{#if this.avatar}}{{this.avatar}}{{else}}https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y{{/if}}'
+                  style='width: 48px; height: 48px; object-fit: cover;'
+                  alt='Avatar'
+                />
+                <div class='d-flex flex-column mx-3'>
+                  <span
+                    class='d-block font-weight-bold name'
+                  >{{this.author}}</span>
+                  <span class='date text-black-50'>Shared publicly - Jan 2020</span>
+                </div>
+              </div>
+              <div class='h-25 p-0 m-0'>
+                <button
+                  class='btn btn-outline-secondary btn-sm border-0 py-0 px-1 mx-1'
+                  type='button'
+                >Edit</button><button
+                  class='btn btn-outline-secondary btn-sm border-0 py-0 px-1'
+                  type='button'
+                  style='font-weight: bold'
+                >&#x2715;</button>
+              </div>
+            </div>
+
+            <div class='mt-2 mb-2'>
+              <p class='card-text' style="font-weight: lighter">{{this.message}}</p>
+            </div>
+
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+    <div class='container'>
+      <div class="row">
+        <div class="col-lg-8 my-4 mx-auto">
+          <h4>There are no comments yet!</h4>
+        </div>
+      </div>
+    </div>
+    {{/if}}
 {{/if}}
+</div>
 
 <script>
-  function sendForm() {
-    var data = new FormData($('form')[0]);
-
-    const idNews = window.location.pathname.split('/').reverse()[0];
-
-    $.ajax({
-        url: '/comments/api/' + idNews,
-        data: {author: 'Dude', description: 'Some words', avatar: 'avatar'},
-        // data: data,
-        cache: false,
-        contentType: false,
-        processData: false,
-        method: 'POST',
-        success: function () {
-            window.location.reload();
-        }
-    });
-  }
+    function sendForm() {
+        var data = new FormData($('form')[0]);
+        const idNews = window.location.pathname.split('/').reverse()[0];
+        $.ajax({
+            url: '/comments/api/' + idNews,
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            method: 'POST',
+            success: function () {
+                window.location.reload();
+            }
+        });
+    }
 </script>
