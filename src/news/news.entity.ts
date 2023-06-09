@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UsersEntity } from '../../users/users.entity';
-import { CommentsEntity } from './comments.entity';
+import { UsersEntity } from '../users/users.entity';
+import { CommentsEntity } from './comments/comments.entity';
 
 @Entity('news')
 export class NewsEntity {

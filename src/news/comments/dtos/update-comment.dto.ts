@@ -1,23 +1,9 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class UpdateCommentDto {
-  @IsOptional()
-  @IsNotEmpty()
-  @IsNumber()
-  id: number;
-
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
+  // @IsOptional()
+  @ValidateIf((o) => o.message)
   message: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  author: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  avatar: string;
 }
