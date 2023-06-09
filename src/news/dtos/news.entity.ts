@@ -2,11 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   // ManyToOne,
   // OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UsersEntity } from '../../users/users.entity';
+import { CommentsEntity } from './comments.entity';
 
 @Entity('news')
 export class NewsEntity {
@@ -22,14 +26,14 @@ export class NewsEntity {
   @Column('text', { nullable: true })
   cover: string;
 
-  // @OneToMany(() => CommentsEntity, (comments) => comments.news)
-  // comments: CommentsEntity;
-  //
+  @OneToMany(() => CommentsEntity, (comments) => comments.news)
+  comments: CommentsEntity;
+
   // @ManyToOne(() => CategoriesEntity, (category) => category.news)
   // category: CategoriesEntity;
-  //
-  // @ManyToOne(() => UsersEntity, (user) => user.news)
-  // user: UsersEntity;
+
+  @ManyToOne(() => UsersEntity, (user) => user.news)
+  user: UsersEntity;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

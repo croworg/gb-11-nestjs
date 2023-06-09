@@ -23,7 +23,7 @@ export class MailService {
   }
 
   async sendNewNewsForAdmins(emails: string[], news: News) {
-    console.log('Notification about added news!');
+    // console.log('Notification about added news!');
 
     for (const email of emails) {
       await this.mailerService
