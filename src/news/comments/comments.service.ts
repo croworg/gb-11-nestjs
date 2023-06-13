@@ -5,6 +5,11 @@ import { Repository } from 'typeorm';
 import { NewsService } from '../news.service';
 import { UsersService } from '../../users/users.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
+import EventEmitter2 from 'eventemitter2';
+import {
+  checkPermission,
+  Modules,
+} from '../../auth/role/utils/check-permission';
 
 export interface Comment {
   id?: number;
@@ -23,6 +28,7 @@ export class CommentsService {
     private readonly commentsRepository: Repository<CommentsEntity>,
     private readonly newsService: NewsService,
     private readonly userService: UsersService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private readonly comments = {};
@@ -67,24 +73,30 @@ export class CommentsService {
     });
   }
 
-  async edit(
-    // idNews: number,
-    idComment: number,
-    comment: CommentEdit,
-  ): Promise<CommentsEntity> {
-    const _comment = await this.commentsRepository.findOneBy({ id: idComment });
-    _comment.message = comment.message;
-    return this.commentsRepository.save(_comment);
-  }
-
-  async remove(
-    // idNews: number,
-    idComment: number,
-  ): Promise<CommentsEntity> {
+  async edit(idComment: number, comment: CommentEdit): Promise<CommentsEntity> {
     const _comment = await this.commentsRepository.findOne({
       where: {
         id: idComment,
       },
+      relations: ['news', 'user'],
+    });
+    _comment.message = comment.message;
+    const _updatedComment = await this.commentsRepository.save(_comment);
+    this.eventEmitter.emit(EventsComment.edit, {
+      commentId: idComment,
+      newsId: _comment.news.id,
+      comment: _updatedComment,
+    });
+    return _updatedComment;
+    // return this.commentsRepository.save(_comment);
+  }
+
+  async remove(idComment: number, userId: number): Promise<CommentsEntity> {
+    const _comment = await this.commentsRepository.findOne({
+      where: {
+        id: idComment,
+      },
+      relations: ['news', 'user'],
     });
     if (!_comment) {
       throw new HttpException(
@@ -95,7 +107,20 @@ export class CommentsService {
         HttpStatus.NOT_FOUND,
       );
     }
-    console.log(_comment);
+    const _user = await this.userService.findById(userId);
+    if (
+      _user.id !== _comment.user.id &&
+      !checkPermission(Modules.editComment, _user.roles)
+    ) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Not enough rights for remove',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     return this.commentsRepository.remove(_comment);
   }
 
