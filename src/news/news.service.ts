@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './comments/comments.service';
-import { NewsEntity } from './dtos/news.entity';
+import { NewsEntity } from './news.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { CreateNewsDto } from './dtos/create-news.dto';
-import { UsersEntity } from '../users/users.entity';
 
 export interface News {
   id?: number;
@@ -32,7 +31,7 @@ export class NewsService {
   findById(id): Promise<NewsEntity> {
     return this.newsRepository.findOne({
       where: { id: id },
-      relations: ['user'],
+      relations: ['user', 'comments', 'comments.user'],
     });
   }
 

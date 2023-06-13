@@ -4,7 +4,7 @@ import { NewsModule } from '../news.module';
 import { UsersModule } from '../../users/users.module';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
-import { CommentsEntity } from '../dtos/comments.entity';
+import { CommentsEntity } from './comments.entity';
 
 @Module({
   imports: [
