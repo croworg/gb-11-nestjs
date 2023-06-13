@@ -1,0 +1,37 @@
+<h1>Edit user form</h1>
+<h6>Hi, {{userName}}</h6>
+<form action='/news/api' method="post" enctype="multipart/form-data">
+  <div class='mb-3'>
+    <label for='firstName'>First name</label>
+    <input class='form-control' name="firstName" id="firstName" value='{{firstName}}' />
+  </div>
+  <div class='mb-3'>
+    <label for='email'>E-mail</label>
+    <input class='form-control' type="email" name="email" id="email" value='{{email}}' />
+  </div>
+  <div class='mb-3'>
+    <label for='password'>New password</label>
+    <input class='form-control' type="password" name="password" id="password" value='' />
+  </div>
+    <button type="button" class="btn btn-primary btn-small" onclick="sendForm()">Send</button>
+</form>
+
+<script>
+    function sendForm() {
+        var data = new FormData($('form')[0]);
+        axios({
+            method: 'PATCH',
+            headers: {
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2ODY2NDY4NzYsImV4cCI6MTY4NjY1MDQ3Nn0.aLV7bygnZ6Wv9tB72EacT_55ClX3QV52J-9Rgec5OoM"
+            },
+            data: {
+                firstName: $('#firstName')[0].value,
+                email: $('#email')[0].value,
+                password: $('#password')[0].value,
+            },
+            url: '/users/api',
+        }).then((data) => {
+            window.location.reload();
+        });
+    }
+</script>

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { NewsEntity } from './news.entity';
+import { NewsEntity } from '../news.entity';
 import { UsersEntity } from '../../users/users.entity';
 
 @Entity('comments')

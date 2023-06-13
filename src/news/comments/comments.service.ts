@@ -1,9 +1,10 @@
-import {
-  // BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CommentsEntity } from './comments.entity';
+import { Repository } from 'typeorm';
+import { NewsService } from '../news.service';
+import { UsersService } from '../../users/users.service';
+import { CreateCommentDto } from './dtos/create-comment.dto';
 
 export interface Comment {
   id?: number;
@@ -17,59 +18,89 @@ export type CommentEdit = Partial<Comment>;
 
 @Injectable()
 export class CommentsService {
+  constructor(
+    @InjectRepository(CommentsEntity)
+    private readonly commentsRepository: Repository<CommentsEntity>,
+    private readonly newsService: NewsService,
+    private readonly userService: UsersService,
+  ) {}
+
   private readonly comments = {};
 
-  create(idNews: number, comment: Comment) {
-    if (!this.comments[idNews]) {
-      this.comments[idNews] = [];
+  async create(
+    idNews: number,
+    comment: CreateCommentDto,
+  ): Promise<CommentsEntity> {
+    const _news = await this.newsService.findById(idNews);
+    if (!_news) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'News not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const _user = await this.userService.findById(comment.userId);
+    if (!_user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'User not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    this.comments[idNews].push({
-      ...comment,
-      id: 1,
+    const commentEntity = new CommentsEntity();
+    commentEntity.news = _news;
+    commentEntity.message = comment.message;
+    commentEntity.user = _user;
+
+    return this.commentsRepository.save(commentEntity);
+  }
+
+  async findAll(idNews: number): Promise<CommentsEntity[]> {
+    return this.commentsRepository.find({
+      where: { id: idNews },
+      relations: ['user'],
     });
-
-    return comment;
-    // return 'Комментарий добавлен';
   }
 
-  find(idNews: number): Comment[] | null {
-    return this.comments[idNews] || null;
-  }
-
-  edit(
-    idNews: number,
+  async edit(
+    // idNews: number,
     idComment: number,
     comment: CommentEdit,
-  ): Comment[] | null {
-    const indexComment = this.comments[idNews]?.findIndex(
-      (c) => c.id === idComment,
-    );
-    if (!this.comments[idNews] || indexComment || indexComment === -1) {
-      throw new HttpException('Comment not found', HttpStatus.BAD_REQUEST);
-    }
-
-    const editedComment = {
-      ...this.comments[idNews][indexComment],
-      ...comment,
-    };
-    this.comments[idNews][indexComment] = editedComment;
-
-    return editedComment;
+  ): Promise<CommentsEntity> {
+    const _comment = await this.commentsRepository.findOneBy({ id: idComment });
+    _comment.message = comment.message;
+    return this.commentsRepository.save(_comment);
   }
 
-  remove(idNews: number, idComment: number): Comment[] | null {
-    if (!this.comments[idNews]) {
-      return null;
+  async remove(
+    // idNews: number,
+    idComment: number,
+  ): Promise<CommentsEntity> {
+    const _comment = await this.commentsRepository.findOne({
+      where: {
+        id: idComment,
+      },
+    });
+    if (!_comment) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Comment not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
+    console.log(_comment);
+    return this.commentsRepository.remove(_comment);
+  }
 
-    const indexComment = this.comments[idNews].findIndex(
-      (c) => c.id === idComment,
-    );
-    if (indexComment === -1) {
-      return null;
-    }
-
-    return this.comments[idNews].splice(indexComment, 1);
+  async removeAll(idNews) {
+    const _comments = await this.findAll(idNews);
+    return await this.commentsRepository.remove(_comments);
   }
 }

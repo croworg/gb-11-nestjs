@@ -1,17 +1,18 @@
 import {
-  Controller,
-  Param,
   Body,
+  Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
   Render,
-  ParseIntPipe,
-  HttpStatus,
-  HttpException,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -21,7 +22,10 @@ import { UpdateNewsDto } from './dtos/update-news.dto';
 import { HelperFileLoader } from '../utils/HelperFileLoader';
 import { MailService } from '../mail/mail.service';
 import { NewsService } from './news.service';
-import { NewsEntity } from './dtos/news.entity';
+import { NewsEntity } from './news.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/role/roles.decorator';
+import { Role } from '../auth/role/role.enum';
 
 const PATH_NEWS = '/news-static/';
 // const helperFileLoaderNews = new HelperFileLoader();
@@ -62,12 +66,7 @@ export class NewsController {
         HttpStatus.NOT_FOUND,
       );
     }
-    const comments = this.commentsService.find(id);
-
-    return {
-      news,
-      comments,
-    };
+    return { news };
   }
 
   @Get('api/all')
@@ -90,6 +89,8 @@ export class NewsController {
     return news;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.Moderator)
   @Post('api')
   @UseInterceptors(
     FileInterceptor('cover', {
@@ -103,8 +104,8 @@ export class NewsController {
     @Body() news: CreateNewsDto,
     @UploadedFile() cover: Express.Multer.File,
   ): Promise<NewsEntity> {
-    const fileExternsion = cover.originalname.split('.').reverse()[0];
-    if (!fileExternsion || !fileExternsion.match(/(jpg|jpeg|png|gif)$/)) {
+    const fileExtension = cover.originalname.split('.').reverse()[0];
+    if (!fileExtension || !fileExtension.match(/(jpg|jpeg|png|gif)$/i)) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
