@@ -97,11 +97,29 @@
 
 <script>
     function sendForm() {
-        var data = new FormData($('form')[0]);
         const idNews = window.location.pathname.split('/').reverse()[0];
+        const data = ($('form').serializeArray());
+        var comment = {};
+        $.each(data, function(i, field) {
+            comment[field.name] = field.value;
+        });
+        console.log(comment);
         $.ajax({
             url: '/comments/api/' + idNews,
-            data: data,
+            headers: {
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2ODY2NDY4NzYsImV4cCI6MTY4NjY1MDQ3Nn0.aLV7bygnZ6Wv9tB72EacT_55ClX3QV52J-9Rgec5OoM"
+                        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNjg2MzI3MjgxLCJleHAiOjE2ODYzMzA4ODF9.oj3koYTe1firmpVNyhNcfVWpTaHkNvHLR8pAiWN779I"
+            },
+            // data: {
+            //     firstName: $('#firstName')[0].value,
+            //     email: $('#email')[0].value,
+            //     password: $('#password')[0].value,
+            // },
+            data: comment,
+            // data: {
+            //     author: $('#author')[0].value,
+            //     message: $('#message')[0].value,
+            // },
             cache: false,
             contentType: false,
             processData: false,

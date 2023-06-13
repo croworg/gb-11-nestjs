@@ -16,6 +16,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { EditUserDto } from './dtos/edit-user.dto';
+import { UsersEntity } from './users.entity';
 
 @Controller('users')
 export class UsersController {

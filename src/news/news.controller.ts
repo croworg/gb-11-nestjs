@@ -66,8 +66,7 @@ export class NewsController {
         HttpStatus.NOT_FOUND,
       );
     }
-
-    return news;
+    return { news };
   }
 
   @Get('api/all')
@@ -105,8 +104,8 @@ export class NewsController {
     @Body() news: CreateNewsDto,
     @UploadedFile() cover: Express.Multer.File,
   ): Promise<NewsEntity> {
-    const fileExternsion = cover.originalname.split('.').reverse()[0];
-    if (!fileExternsion || !fileExternsion.match(/(jpg|jpeg|png|gif)$/i)) {
+    const fileExtension = cover.originalname.split('.').reverse()[0];
+    if (!fileExtension || !fileExtension.match(/(jpg|jpeg|png|gif)$/i)) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,

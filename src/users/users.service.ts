@@ -45,7 +45,10 @@ export class UsersService {
     }
     _user.password = (await hash(user.password)) || _user.password;
 
-    return this.usersRepository.save(_user);
+    return this.usersRepository.save(_user).then((user) => {
+      const { password, ...result } = user;
+      return result;
+    });
   }
 
   async findById(id: number) {
