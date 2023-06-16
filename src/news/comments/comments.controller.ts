@@ -7,12 +7,17 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { HelperFileLoader } from '../../utils/HelperFileLoader';
 import { CommentsEntity } from './comments.entity';
+import {
+  checkPermission,
+  Modules,
+} from '../../auth/role/utils/check-permission';
 
 const PATH_COMMENTS = '/news-static/';
 // const helperFileLoaderComment = new HelperFileLoader();
@@ -46,7 +51,8 @@ export class CommentsController {
   }
 
   @Delete('api/:idNews/:idComment')
-  remove(@Param('idComment', ParseIntPipe) idComment: number) {
-    return this.commentsService.remove(idComment);
+  remove(@Param('idComment', ParseIntPipe) idComment: number, @Req() req) {
+    const userId = req.user.id;
+    return this.commentsService.remove(idComment, userId);
   }
 }

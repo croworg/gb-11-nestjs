@@ -16,5 +16,8 @@
     <orderEntry type="library" name="js-cookie" level="application" />
     <orderEntry type="library" name="jquery-3.6.0" level="application" />
     <orderEntry type="library" name="axios" level="application" />
+    <orderEntry type="library" name="signin" level="application" />
+    <orderEntry type="library" name="jquery-3.3.1.slim" level="application" />
+    <orderEntry type="library" name="popper.js" level="application" />
   </component>
 </module>
