@@ -1,15 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CommentsEntity } from './comments.entity';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { NewsService } from '../news.service';
 import { UsersService } from '../../users/users.service';
-import { CreateCommentDto } from './dtos/create-comment.dto';
-import EventEmitter2 from 'eventemitter2';
+import { EventEmitter2 } from 'eventemitter2';
 import {
   checkPermission,
   Modules,
 } from '../../auth/role/utils/check-permission';
+import { CommentsEntity } from './comments.entity';
+import { CreateCommentDto } from './dtos/create-comment.dto';
+import { EventsCommentEnum } from './EventsComment.enum';
 
 export interface Comment {
   id?: number;
@@ -30,8 +31,6 @@ export class CommentsService {
     private readonly userService: UsersService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  private readonly comments = {};
 
   async create(
     idNews: number,
@@ -82,7 +81,7 @@ export class CommentsService {
     });
     _comment.message = comment.message;
     const _updatedComment = await this.commentsRepository.save(_comment);
-    this.eventEmitter.emit(EventsComment.edit, {
+    this.eventEmitter.emit(EventsCommentEnum.edit, {
       commentId: idComment,
       newsId: _comment.news.id,
       comment: _updatedComment,
