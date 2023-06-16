@@ -69,26 +69,6 @@ export class NewsController {
     return { news };
   }
 
-  @Get('api/all')
-  async getAll(): Promise<NewsEntity[]> {
-    return this.newsService.getAll();
-  }
-
-  @Get('api/detail/:id')
-  async get(@Param('id', ParseIntPipe) id: number): Promise<NewsEntity> {
-    const news = this.newsService.findById(id);
-    if (!news) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'News is not found',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return news;
-  }
-
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Admin, Role.Moderator)
   @Post('api')
@@ -104,6 +84,7 @@ export class NewsController {
     @Body() news: CreateNewsDto,
     @UploadedFile() cover: Express.Multer.File,
   ): Promise<NewsEntity> {
+    console.log(cover.originalname);
     const fileExtension = cover.originalname.split('.').reverse()[0];
     if (!fileExtension || !fileExtension.match(/(jpg|jpeg|png|gif)$/i)) {
       throw new HttpException(
@@ -150,5 +131,25 @@ export class NewsController {
       },
       HttpStatus.OK,
     );
+  }
+
+  @Get('api/all')
+  async getAll(): Promise<NewsEntity[]> {
+    return this.newsService.getAll();
+  }
+
+  @Get('api/detail/:id')
+  async get(@Param('id', ParseIntPipe) id: number): Promise<NewsEntity> {
+    const news = this.newsService.findById(id);
+    if (!news) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'News is not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return news;
   }
 }
